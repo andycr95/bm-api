@@ -1,0 +1,4 @@
+node_modules
+.nyc-output
+.env
+.now
