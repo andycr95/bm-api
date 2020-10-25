@@ -16,6 +16,7 @@ function trackApi(app) {
 
     router.post('/image', uploadImage.single('image'), uploadController.uploadImage);
     router.post('/track', uploadController.uploadTrack);
+    router.post('/yoump3', uploadController.fromYoutube);
  }
 
  var uploadImage = multer({

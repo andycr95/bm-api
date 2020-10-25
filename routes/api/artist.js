@@ -8,10 +8,11 @@ function artistApi(app) {
     app.use('/api/artists', router)
 
     router.get('/', artistController.getArtists);
+    router.get('/popular', artistController.getPopularsArtists);
     router.get('/:id', validationHandlers({ id: artistIdSchema }, 'params'), artistController.getArtist);
     router.get('/:id/albums', validationHandlers({ id: artistIdSchema }, 'params'), artistController.getAlbumArtist);
     router.post('/', validationHandlers(createArtistSchema), artistController.createArtist);
-
+ 
 
 /*     
 

@@ -3,7 +3,7 @@ const { ObjectId } = require('mongodb')
 
 const trackIdSchema = joi.string().regex(/^[0-9a-fA-F]{24}$/);
 const trackTitleSchema = joi.string().max(80);
-const trackSourceSchema = joi.string().uri();
+const trackSourceSchema = joi.string();
 const trackPlaycountSchema = joi.number();
 const trackArtistIdSchema = joi.string().regex(/^[0-9a-fA-F]{24}$/);
 const trackAlbumIdSchema = joi.string().regex(/^[0-9a-fA-F]{24}$/);

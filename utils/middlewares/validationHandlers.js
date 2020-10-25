@@ -6,11 +6,11 @@ function validate(data, schema) {
     return error;
 }
 
-function validationHandlers(schema, check = 'body') {
+function validationHandlers(schema, check = "body") {
     return function (req, res, next) { 
         const error = validate(req[check], schema);
 
-        error ? next(boom.badRequest(error)) : next();
+        error ? res.json(boom.badData(error)) : next();
      }
 }
 

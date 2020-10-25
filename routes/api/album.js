@@ -8,6 +8,7 @@ function albumApi(app) {
     app.use('/api/albums', router)
 
     router.get('/', albumController.getAlbums);
+    router.get('/latest', albumController.getLastAlbums);
     router.get('/:id', validationHandlers({ id: albumIdSchema }, 'params'), albumController.getAlbum);
     router.post('/', validationHandlers(createAlbumSchema), albumController.createAlbum);
 

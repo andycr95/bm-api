@@ -18,11 +18,17 @@
     "@hapi/joi": "^17.1.1",
     "aws-sdk": "^2.687.0",
     "axios": "^0.19.2",
+    "bcryptjs": "^2.4.3",
+    "connect-flash": "^0.1.1",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
+    "download": "^8.0.0",
     "download-file": "^0.1.5",
     "ejs": "^3.1.2",
     "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "fluent-ffmpeg": "^2.1.2",
+    "jsonwebtoken": "^8.5.1",
     "mediaserver": "^0.1.1",
     "moment": "^2.26.0",
     "mongo": "^0.1.0",
@@ -33,7 +39,8 @@
     "multer-s3": "^2.9.0",
     "node-media-server": "^2.1.8",
     "sweetalert": "^2.1.2",
-    "sweetalert2": "^9.14.3"
+    "sweetalert2": "^9.14.3",
+    "youtube-dl": "^3.0.2"
   },
   "devDependencies": {
     "eslint": "^6.8.0",

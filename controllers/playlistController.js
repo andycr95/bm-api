@@ -3,22 +3,32 @@ const Track = require('../models/track')
 const Album = require('../models/album')
 const Artist = require('../models/artist')
 const Playlist = require('../models/playlist')
+const moment = require('moment')
+moment.locale('es');
 
 playlistCtrl.getPlaylists = async (req, res, next) => {
     try {
         const respo = [];
-        const playlists = await Playlist.find();
+        const playlists = await Playlist.find().sort({'_id': -1});
         for (let i = 0; i < playlists.length; i++) {
             const p = playlists[i];
             const okTrs = [];
             for (let j = 0; j < p.tracks.length; j++) {
                 const t = p.tracks[j];
                 const tr = await Track.findById(t._id);
-                const artist = await Artist.findById(tr.artist_id);
+                const art = await Artist.findById(tr.artist_id);
                 const album = await Album.findById(tr.album_id);
+                const artist = {
+                    _id: art._id,
+                    name: art.name.replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase()))),
+                    image: art.image,
+                    playcount: art.playcount,
+                    followers: art.followers,
+                    genres: art.genres
+                }
                 const track = {
                     _id : tr._id,
-                    title : tr.title,
+                    title : tr.title.replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase()))),
                     image : album.image,
                     source : tr.source,
                     playcount : tr.playcount,
@@ -31,7 +41,7 @@ playlistCtrl.getPlaylists = async (req, res, next) => {
             }
             const playlist = {
                 _id: p._id,
-                title : p.title,
+                title : p.title.replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase()))),
                 image : p.image,
                 description : p.description,
                 public : p.public,

@@ -8,14 +8,19 @@ const musicApi = require('./routes/api/track');
 const albumApi = require('./routes/api/album');
 const artistApi = require('./routes/api/artist');
 const genreApi = require('./routes/api/genre');
+const searchApi = require('./routes/api/search');
+const suggestionApi = require('./routes/api/suggestion');
 const playlistApi = require('./routes/api/playlist');
 const uploadApi = require('./routes/api/upload');
+const userApi = require('./routes/api/user');
 const path = require('path');
 const cors = require('cors')
 const http = require("http").Server(app);
 const { errorHandler, logError, wrapError } = require('./utils/middlewares/errorHandlers')
 const notFoundHandlers = require('./utils/middlewares/notFoundHandlers');
 const so = require('os');
+const flash = require('connect-flash');
+const session = require('express-session');
 const { mongoose } = require("./lib/mongo");
 
 //settings
@@ -28,13 +33,29 @@ app.use(morgan('dev'))
 app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 app.use(express.static('public'))
+app.use(session({
+  secret: 'secret',
+  resave: true,
+  saveUninitialized: true
+}))
+app.use(flash())
+
+app.use((req, res, next) =>{
+  res.locals.success_msg = req.flash('success_msg')
+  res.locals.error_msg = req.flash('error_msg')
+  res.locals.error = req.flash('error')
+  next();
+})
 
 //Routes
 admin(app)
 musicApi(app)
 albumApi(app)
 artistApi(app)
+searchApi(app)
+suggestionApi(app)
 genreApi(app)
+userApi(app)
 uploadApi(app)
 playlistApi(app)
 

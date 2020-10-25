@@ -3,21 +3,30 @@ const Track = require('../models/track')
 const Album = require('../models/album')
 const Artist = require('../models/artist')
 const moment = require('moment');
+moment.locale('es');
 
 albumCtrl.getAlbums = async (req, res, next) => {
     try {
         const respo = [];
-        const albums = await Album.find();
+        const albums = await Album.find().sort({'_id': -1});
         for (let i = 0; i < albums.length; i++) {
             const a = albums[i];
-            const tracks = await Track.find({'album_id':a._id});
-            const artist = await Artist.findById(a.artist_id);
+            const tracks = await Track.find({'album_id':a._id}).sort('track_number');
+            const art = await Artist.findById(a.artist_id);
             const okTr = [];
+            const artist = {
+                _id: art._id,
+                name: art.name.replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase()))),
+                image: art.image,
+                playcount: art.playcount,
+                followers: art.followers,
+                genres: art.genres
+            }
             for (let i = 0; i < tracks.length; i++) {
                 const t = tracks[i];
                 track = {
                     _id : t._id,
-                    title : t.title,
+                    title : t.title.replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase()))),
                     image : a.image,
                     source : t.source,
                     playcount : t.playcount,
@@ -30,11 +39,62 @@ albumCtrl.getAlbums = async (req, res, next) => {
             }
             const album = {
                 _id: a._id,
-                title: a.title,
+                title: a.title.replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase()))),
                 image: a.image,
                 artist: artist,
                 total_tracks: a.total_tracks,
-                release_date: moment(a.release_date).years(),
+                release_date: moment(a.release_date).format('LL'),
+                album_type: a.album_type,
+                tracks: okTr,
+                genres: a.genres
+            }
+            respo.push(album);
+        }
+        res.status(200).json(respo);
+    } catch (error) {
+        next(error)
+    }
+}
+
+albumCtrl.getLastAlbums = async (req, res, next) => {
+    try {
+        const respo = [];
+        const albums = await Album.find().sort({release_date: -1}).limit(5);
+        for (let i = 0; i < albums.length; i++) {
+            const a = albums[i];
+            const tracks = await Track.find({'album_id':a._id}).sort('track_number');
+            const art = await Artist.findById(a.artist_id);
+            const okTr = [];
+            const artist = {
+                _id: art._id,
+                name: art.name.replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase()))),
+                image: art.image,
+                playcount: art.playcount,
+                followers: art.followers,
+                genres: art.genres
+            }
+            for (let i = 0; i < tracks.length; i++) {
+                const t = tracks[i];
+                track = {
+                    _id : t._id,
+                    title : t.title.replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase()))),
+                    image : a.image,
+                    source : t.source,
+                    playcount : t.playcount,
+                    track_number : t.track_number,
+                    duration_ms : t.duration_ms,
+                    artist: artist,
+                    album: a
+                }
+                okTr.push(track);
+            }
+            const album = {
+                _id: a._id,
+                title: a.title.replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase()))),
+                image: a.image,
+                artist: artist,
+                total_tracks: a.total_tracks,
+                release_date: moment(a.release_date).format('LL'),
                 album_type: a.album_type,
                 tracks: okTr,
                 genres: a.genres
@@ -51,36 +111,44 @@ albumCtrl.getAlbum = async (req, res, next) => {
     const { id } = req.params;
     try {
         const album = await Album.findById(id);
+        const tracks = await Track.find({'album_id':album._id}).sort('track_number');
+        const art = await Artist.findById(album.artist_id);
         const okTr = [];
-        const tracks = await Track.find({'album_id':id});
-        const artist = await Artist.findById(a.artist_id);
+        const artist = {
+            _id: art._id,
+            name: art.name.replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase()))),
+            image: art.image,
+            playcount: art.playcount,
+            followers: art.followers,
+            genres: art.genres
+        }
         for (let i = 0; i < tracks.length; i++) {
             const t = tracks[i];
             track = {
                 _id : t._id,
-                title : t.title,
-                image : t.image,
+                title : t.title.replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase()))),
+                image : album.image,
                 source : t.source,
                 playcount : t.playcount,
                 track_number : t.track_number,
                 duration_ms : t.duration_ms,
                 artist: artist,
-                album: t
+                album: album
             }
             okTr.push(track);
         }
-        const respo = {
-            artists: album.artists,
-            genres: album.genres,
+        const a = {
             _id: album._id,
-            album_type: album.album_type,
+            title: album.title.replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase()))),
             image: album.image,
-            title: album.title,
-            release_date: album.release_date,
+            artist: artist,
             total_tracks: album.total_tracks,
-            okTr
+            release_date: moment(album.release_date).format('LL'),
+            album_type: album.album_type,
+            tracks: okTr,
+            genres: album.genres
         }
-        res.status(200).json(respo);
+        res.status(200).json(a);
     } catch (error) {
         next(error)
     }
@@ -93,9 +161,10 @@ albumCtrl.createAlbum = async (req, res) => {
             album_type: album.album_type,
             artist_id: album.artist_id,
             image: album.image,
-            title: album.title,
+            title: album.title.toLowerCase(),
             release_date: album.release_date,
             total_tracks: album.total_tracks,
+            playcount: 0,
             genres: album.genres
         })
         await tr.save()

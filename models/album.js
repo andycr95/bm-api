@@ -9,7 +9,8 @@ const albumSchema = new mongoose.Schema
     artist_id : String,
     genres : Array,
     release_date : Date,
+    playcount : Number,
     total_tracks: Number,
     album_type: String
 })
-module.exports = mongoose.model('album', albumSchema );
+module.exports = mongoose.model('album', albumSchema ); 
