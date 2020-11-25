@@ -2,13 +2,20 @@ const albumCtrl = {}
 const Track = require('../models/track')
 const Album = require('../models/album')
 const Artist = require('../models/artist')
+const escapeRegex = require('../utils/regex-escape');
 const moment = require('moment');
 moment.locale('es');
 
 albumCtrl.getAlbums = async (req, res, next) => {
+    const resPerPage = 5; // results per page
+    const page = req.query.page || 1; // Page 
     try {
+        const searchQuery = req.query.search,
+        regex = new RegExp(escapeRegex(req.query.search), 'gi');
         const respo = [];
-        const albums = await Album.find().sort({'_id': -1});
+        const albums = await Album.find({title:regex}).skip((resPerPage * page) - resPerPage)
+        .limit(resPerPage).sort({'_id': -1});
+        const num = await Album.count({title: regex});
         for (let i = 0; i < albums.length; i++) {
             const a = albums[i];
             const tracks = await Track.find({'album_id':a._id}).sort('track_number');
@@ -50,7 +57,14 @@ albumCtrl.getAlbums = async (req, res, next) => {
             }
             respo.push(album);
         }
-        res.status(200).json(respo);
+        res.status(200).json({
+            data: respo,
+            total: num,
+            limit: resPerPage,
+            totalPages: Math.ceil(num / resPerPage),
+            page: page,
+            searchVal: searchQuery
+        });
     } catch (error) {
         next(error)
     }

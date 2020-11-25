@@ -27,8 +27,15 @@ const { mongoose } = require("./lib/mongo");
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname,'views'));
 
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-client-key, x-client-token, x-client-secret, Authorization");
+  next();
+});
+
 //middlewares
-app.use(cors())
+app.use(cors({origin: '*'}))
 app.use(morgan('dev'))
 app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
@@ -45,6 +52,10 @@ app.use((req, res, next) =>{
   res.locals.error_msg = req.flash('error_msg')
   res.locals.error = req.flash('error')
   next();
+})
+
+app.get('/', (req, res) =>{
+  res.status(200).send("Hello Bm-Api");
 })
 
 //Routes

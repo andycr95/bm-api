@@ -2,6 +2,7 @@ const trackCtrl = {}
 const Track = require('../models/track')
 const Album = require('../models/album')
 const Artist = require('../models/artist')
+const escapeRegex = require('../utils/regex-escape');
 const moment = require('moment')
 moment.locale('es');
 const jwt = require('jsonwebtoken')
@@ -52,8 +53,14 @@ trackCtrl.getTrack = async (req, res, next) => {
 }
 
 trackCtrl.getTracks = async (req, res, next) => {
+    const resPerPage = 7; // results per page
+    const page = req.query.page || 1; // Page 
     try {
-        const tracks = await Track.find().sort({'_id': -1});
+        const searchQuery = req.query.search,
+        regex = new RegExp(escapeRegex(req.query.search), 'gi');
+        const num = await Track.count({title: regex});
+        const tracks = await Track.find({title:regex}).skip((resPerPage * page) - resPerPage)
+        .limit(resPerPage).sort({'_id': -1});
         const okTracks = [];
         for (let i = 0; i < tracks.length; i++) {
             const e = tracks[i];
@@ -90,7 +97,14 @@ trackCtrl.getTracks = async (req, res, next) => {
             }
             okTracks.push(respo);
         }
-        res.status(200).json(okTracks);
+        res.status(200).json({
+            data: okTracks,
+            total: num,
+            limit: resPerPage,
+            totalPages: Math.ceil(num / resPerPage),
+            page: page,
+            searchVal: searchQuery
+        });
     } catch (error) {
         next(error)
     }
