@@ -5,6 +5,7 @@ const app = express()
 const morgan = require('morgan');
 const admin = require('./routes/admin');
 const musicApi = require('./routes/api/track');
+const pokeApi = require('./routes/api/pokemon');
 const albumApi = require('./routes/api/album');
 const artistApi = require('./routes/api/artist');
 const genreApi = require('./routes/api/genre');
@@ -58,10 +59,15 @@ app.get('/', (req, res) =>{
   res.status(200).send("Hello Bm-Api");
 })
 
+app.get('/pokemons', (req, res) =>{
+  res.status(200).send("pokemons Bm-Api");
+})
+
 //Routes
 admin(app)
 musicApi(app)
 albumApi(app)
+pokeApi(app)
 artistApi(app)
 searchApi(app)
 suggestionApi(app)
